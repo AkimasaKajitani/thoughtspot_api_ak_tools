@@ -1,4 +1,4 @@
-# AK Tools for ThoughtSppot
+# AK Tools for ThoughtSpot
 
 Thought APIを使ったツールを公開しています。
 
