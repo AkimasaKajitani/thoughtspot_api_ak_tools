@@ -169,13 +169,22 @@ def _apiaccesses(base_url, session, endpoint, httpaction, header, postjson, priv
 # セッションはここで作成
 def tsapi_get_full_access_token(settings):
     base_url = settings['base_url']
-    post_data = {
-    "username": settings['username'],
-    "password": settings['password'],
-    "validity_time_in_sec": 300,
-    "org_id" : settings['org_id'],
-    "auto_create": False
-    }
+    if settings['org_id']!=-1:
+        post_data = {
+        "username": settings['username'],
+        "password": settings['password'],
+        "validity_time_in_sec": 300,
+        "org_id" : settings['org_id'],
+        "auto_create": False
+        }
+    else:
+        post_data = {
+        "username": settings['username'],
+        "password": settings['password'],
+        "validity_time_in_sec": 300,
+        "auto_create": False
+        }
+
     api_headers = {
     'X-Requested-By': 'ThoughtSpot',
     'Accept': 'application/json'
