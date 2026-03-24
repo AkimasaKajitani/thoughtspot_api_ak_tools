@@ -19,8 +19,14 @@ API_VERSION = '2.0'
 SLEEP_TIME = 0.3
 # ------------------------#
 
+# ============= ts_get_user_list.py ==============
+# ver 1.01 2026/03/24
+# ORGリスト、ユーザーリスト、ユーザーグループリストを取得するスクリプト。
+# ================================================
+
+
 # ============= 本スクリプトの方針 ==============
-# Pythonのモジュールは使用していません。
+# ThoughtSpotのPythonライブラリは使用していません。
 # APIの仕様変更があった際に、Pythonのモジュールを待つより直接APIを叩いた方が対応をまたなくて済むため
 # ==========================================
 
@@ -52,8 +58,12 @@ def read_credential(json_file):
             data['settingname'] = settingname
 
             # Error check
-            if any(v is None or v == "" for v in data.values()):
-                raise ValueError("未入力の項目があります。すべての設定値を埋めてください。")
+            # 必須項目だけをリストアップ
+            required_keys = ["thoughtspot_url", "username"]
+            for key in required_keys:
+                # 存在しない、または空（None, ""）の場合にエラー
+                if not data.get(key):
+                    raise ValueError(f"必須項目 '{key}' が入力されていません。")
 
             # log用
             print(f"thoughtspot_url: {data['thoughtspot_url']}")
@@ -169,21 +179,26 @@ def _apiaccesses(base_url, session, endpoint, httpaction, header, postjson, priv
 # セッションはここで作成
 def tsapi_get_full_access_token(settings):
     base_url = settings['base_url']
+    # create post data
+    post_data = {
+    "username": settings['username'],
+    "validity_time_in_sec": 300,
+    "auto_create": False,
+    }
     if settings['org_id']!=-1:
-        post_data = {
-        "username": settings['username'],
-        "password": settings['password'],
-        "validity_time_in_sec": 300,
-        "org_id" : settings['org_id'],
-        "auto_create": False
-        }
-    else:
-        post_data = {
-        "username": settings['username'],
-        "password": settings['password'],
-        "validity_time_in_sec": 300,
-        "auto_create": False
-        }
+        post_data["org_id"] = settings['org_id']        
+
+    if settings.get('password'):
+        post_data["password"] = settings['password']
+
+    if settings.get('secret_key'):
+        post_data["secret_key"] = settings['secret_key']
+
+    # auth mode
+    if post_data.get('secret_key'):
+        print("API request with username and secret key")
+    elif post_data.get('password') and not post_data.get('secret_key'):
+        print("API request with username and password")
 
     api_headers = {
     'X-Requested-By': 'ThoughtSpot',
@@ -269,7 +284,7 @@ def tsapi_search_user_groups(settings, session, recordsize):
     post_data = {
     "record_offset": 0,
     "record_size": recordsize,
-    "include_users": False,
+    "include_users": False, # ユーザーを含むかどうか
     "include_sub_groups": False
     }
     api_headers = {
