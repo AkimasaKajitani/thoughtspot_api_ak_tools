@@ -1,12 +1,12 @@
 # ts_get_user_list.py
 
 ## 概要
-ThoughtSpotのユーザー一覧を取得します。
+ThoughtSpotのグループとそれに紐づくユーザー一覧を取得します。
 ユーザー一覧の取得の際、Orgの一覧とUserGroupの一覧も取得します。
 
 - 設定は専用のJSONファイルで行います
-- ユーザーリストの取得を行います
 - グループリストの取得を行います
+- グループ内に所属するユーザーのリストの取得を行います（ユーザー情報はidとログイン名のみ）
 - 設定ファイルがPrimaryOrg（0）の場合、以下のことが実行可能です
     - ORGリストの取得
     - すべてのORGに対してユーザーリストを取得
@@ -63,21 +63,21 @@ Enterprise以外（トライアルも含む）ではこの情報が必要にな�
 |--------|------|----|------|
 |-jsonfile | -j | Required | 設定用JSONファイルのパス |
 |-all | -a | False | すべてのORGを処理する|
-|-divide | -d | False | ファイルをORGごとに分割して保存する|
+|-divide | -d | False | ファイルをORG,Groupごとに分割して保存する|
 |-recordsize | -r | 50 | APIで一度に取得するレコード数|
 
 ### コマンドラインサンプル
-- python ts_get_user_list.py -j "credential_trial.json" -a -d -r 100
+- python ts_get_group_list.py -j "credential_trial.json" -a -d -r 100
     - credential_trial.json という設定ファイルを使用
     - すべてのORGを処理します（設定ファイルがPrimaryOrgの場合）
     - ファイルをORGごとに分割して生成します
     - APIで一度に取得するレコード数を100にします
-- python ts_get_user_list.py -j "credential_trial.json"
+- python ts_get_group_list.py -j "credential_trial.json"
     - credential_trial.json という設定ファイルを使用
     - 所属ORGのみ処理します
     - ファイルはそれぞれひとかたまりで生成します
     - APIで一度に取得するレコード数は50にします(Default設定)
-- python ts_get_user_list.py
+- python ts_get_group_list.py
     - 設定はすべてコードに書かれたデフォルト設定値で実行されます
 
 
@@ -87,7 +87,7 @@ Enterprise以外（トライアルも含む）ではこの情報が必要にな�
 
 - ts_orglist_[credential_file_name].csv
 - ts_usergrouplist_[credential_file_name].csv
-- ts_userlist_[credential_file_name].csv
+- ts_usergroupusers_[credential_file_name].csv
 
 credential_file_name は、上述の通り読み込んだcredential.jsonファイル名のアンダーバーの後ろ部分から付与されます。
 例えば「credential_orgname.json」であれば「orgname」となります。
@@ -97,21 +97,24 @@ credential_file_name は、上述の通り読み込んだcredential.jsonファ�
 
 - ts_orglist_orgname.csv
 - ts_usergrouplist_orgname.csv
-- ts_userlist_orgname.csv
+- ts_usergroupusers_orgname.csv
 
 また、-dオプションをオンにすると、ORG名がさらに付与されます。
 
 
-例：credential_orgname.json　でORGがOrg1、Org2とある場合
+例：credential_orgname.json　でORGがOrg1、Org2、グループがGroup1、Group2とある場合
 
 - ts_orglist_orgname.csv
 - ts_usergrouplist_orgname_Primary.csv
 - ts_usergrouplist_orgname_Org1.csv
 - ts_usergrouplist_orgname_Org2.csv
-- ts_userlist_orgname_Primary.csv
-- ts_userlist_orgname_Org1.csv
-- ts_userlist_orgname_Org2.csv
+- ts_usergroupusers_orgname_Primary.csv
+- ts_usergroupusers_orgname_Org1_Group1.csv
+- ts_usergroupusers_orgname_Org1_Group2.csv
+- ts_usergroupusers_orgname_Org2_Group1.csv
+- ts_usergroupusers_orgname_Org2_Group2.csv
 
+※実際はシステム的に作られるAdministrator、Allのグループ等も作成されます
 
 # VS Codeなどで直接実行する場合
 
@@ -122,5 +125,4 @@ credential_file_name は、上述の通り読み込んだcredential.jsonファ�
 # 履歴
 | Date | Version | Description |
 |:-----|:--------|:-------|
-| 2026/03/25 | 1.01 | ログイン周りを修正 |
-| 2026/01/05 | 1.00 | 初期リリース |
+| 2026/03/08 | 1.00 | 初期リリース |
