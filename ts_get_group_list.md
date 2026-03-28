@@ -1,4 +1,4 @@
-# ts_get_user_list.py
+# ts_get_group_list.py
 
 ## 概要
 ThoughtSpotのグループとそれに紐づくユーザー一覧を取得します。
